@@ -23,12 +23,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EmployeeService implements EmployeeDao {
-    public static final String GET_BY_ID_EMP = "SELECT * FROM employee WHERE ID=%s";
-    public static final String DELETE_BY_ID_EMP = "DELETE FROM employee WHERE ID=%s";
+    public static final String GET_BY_ID_EMP = "SELECT * FROM employee WHERE ID=?";
+    public static final String DELETE_BY_ID_EMP = "DELETE FROM employee WHERE ID=?";
     public static final String ADD_ENTRY_EMP = "INSERT INTO employee (id, firstname, lastname, middlename, " +
             "position, manager, hiredate, salary, department) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    public static final String GET_BY_DEP = "SELECT * FROM employee WHERE department=%s";
-    public static final String GET_BY_MAN = "SELECT * FROM employee WHERE manager=%s";
+    public static final String GET_BY_DEP = "SELECT * FROM employee WHERE department=?";
+    public static final String GET_BY_MAN = "SELECT * FROM employee WHERE manager=?";
     public static final String GET_ALL_EMP = "SELECT * FROM employee";
     public static final String EXCEPTION_LOG_FORMAT = "Exception: ";
 
@@ -40,8 +40,9 @@ public class EmployeeService implements EmployeeDao {
     public Optional<Employee> getById(BigInteger id) {
         Employee employee = null;
         try (final Connection conn = connectionSource.createConnection();
-             final PreparedStatement preparedStatement = conn.prepareStatement(String.format(GET_BY_ID_EMP, id));
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
+             final PreparedStatement preparedStatement = conn.prepareStatement(GET_BY_ID_EMP)) {
+            preparedStatement.setInt(1, id.intValue());
+            ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 employee = getEmployee(resultSet);
             }
@@ -92,7 +93,8 @@ public class EmployeeService implements EmployeeDao {
     public void delete(Employee employee) {
         try (final Connection conn = connectionSource.createConnection();
              final PreparedStatement preparedStatement =
-                     conn.prepareStatement(String.format(DELETE_BY_ID_EMP, employee.getId()))) {
+                     conn.prepareStatement(DELETE_BY_ID_EMP)) {
+            preparedStatement.setInt(1, employee.getId().intValue());
             preparedStatement.executeUpdate();
         } catch (SQLException sqlEx) {
             LOGGER.log(Level.SEVERE, EXCEPTION_LOG_FORMAT, sqlEx);
@@ -105,8 +107,9 @@ public class EmployeeService implements EmployeeDao {
 
         try (final Connection conn = connectionSource.createConnection();
              final PreparedStatement preparedStatement =
-                     conn.prepareStatement(String.format(GET_BY_DEP, department.getId()));
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
+                     conn.prepareStatement(GET_BY_DEP)) {
+            preparedStatement.setInt(1, department.getId().intValue());
+            ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 employeeList.add(getEmployee(resultSet));
             }
@@ -122,8 +125,9 @@ public class EmployeeService implements EmployeeDao {
 
         try (final Connection conn = connectionSource.createConnection();
              final PreparedStatement preparedStatement =
-                     conn.prepareStatement(String.format(GET_BY_MAN, employee.getId()));
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
+                     conn.prepareStatement(GET_BY_MAN)) {
+            preparedStatement.setInt(1, employee.getId().intValue());
+            ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 employeeList.add(getEmployee(resultSet));
             }

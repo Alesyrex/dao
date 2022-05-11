@@ -17,9 +17,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DepartmentService implements DepartmentDao {
-    public static final String GET_BY_ID_DEP = "SELECT * FROM department WHERE id=%s";
+    public static final String GET_BY_ID_DEP = "SELECT * FROM department WHERE id=?";
     public static final String GET_ALL_DEP = "SELECT * FROM department";
-    public static final String DELETE_BY_ID_DEP = "DELETE FROM department WHERE id=%s";
+    public static final String DELETE_BY_ID_DEP = "DELETE FROM department WHERE id=?";
     public static final String ADD_ENTRY_DEP = "INSERT INTO department (name, location, id) VALUES (?, ?, ?)";
     public static final String UPDATE_DEP = "UPDATE department SET name=?, location=? WHERE id=?";
     public static final String EXCEPTION_LOG_FORMAT = "Exception: ";
@@ -31,8 +31,9 @@ public class DepartmentService implements DepartmentDao {
     public Optional<Department> getById(BigInteger id) {
         Department department = null;
         try (final Connection conn = connectionSource.createConnection();
-             final PreparedStatement preparedStatement = conn.prepareStatement(String.format(GET_BY_ID_DEP, id));
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
+             final PreparedStatement preparedStatement = conn.prepareStatement(GET_BY_ID_DEP)) {
+            preparedStatement.setInt(1, id.intValue());
+            ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 department = getDepartment(resultSet);
             }
@@ -82,7 +83,8 @@ public class DepartmentService implements DepartmentDao {
     public void delete(Department department) {
         try (final Connection conn = connectionSource.createConnection();
              final PreparedStatement preparedStatement =
-                     conn.prepareStatement(String.format(DELETE_BY_ID_DEP, department.getId()))) {
+                     conn.prepareStatement(DELETE_BY_ID_DEP)) {
+            preparedStatement.setInt(1, department.getId().intValue());
             preparedStatement.executeUpdate();
         } catch (SQLException sqlEx) {
             LOGGER.log(Level.SEVERE, EXCEPTION_LOG_FORMAT, sqlEx);
