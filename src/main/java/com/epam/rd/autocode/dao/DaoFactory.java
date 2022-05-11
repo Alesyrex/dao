@@ -1,11 +1,14 @@
 package com.epam.rd.autocode.dao;
 
+import com.epam.rd.autocode.service.DepartmentService;
+import com.epam.rd.autocode.service.EmployeeService;
+
 public class DaoFactory {
     public EmployeeDao employeeDAO() {
-        throw new UnsupportedOperationException();
+        return new EmployeeService();
     }
 
     public DepartmentDao departmentDAO() {
-        throw new UnsupportedOperationException();
+        return new DepartmentService();
     }
 }
